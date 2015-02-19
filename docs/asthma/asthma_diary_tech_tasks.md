@@ -3,17 +3,18 @@ This document describes the series of Ehrscape API calls required for the Asthma
 
 The steps covered are...
 
-  A. Retrieve an Ehrscape Session token
-  B. Retrieve Patient's subjectId from the demographics service, based on NHS Number
-  C. Retrieve Patient's ehrId from Ehrscape, based on their subjectId
-  D. Retrieve list of Patient's recent Asthma Diary Entry compositions
-  E. Retrieve a single Asthma Diary Encounter composition
-  F. Retrieve detailed list of recent Asthma Diary Entries for charting purposes
-	G. Persist a new Asthma Diary Encounter Composition
-	H. Other API services
-	    1. Access the ALISS 'Local community resources' service
-			2. Access the NHS Choices Patient advice service - HTML
-			3. Access the NHS Choices Patient advice service - XML
+  A. Retrieve an Ehrscape Session token   
+  B. Retrieve Patient's subjectId from the demographics service, based on NHS Number  
+  C. Retrieve Patient's ehrId from Ehrscape, based on their subjectId 
+  D. Retrieve list of Patient's recent Asthma Diary Entry compositions  
+  E. Retrieve a single Asthma Diary Encounter composition  
+  F. Retrieve detailed list of recent Asthma Diary Entries for charting purposes  
+	G. Persist a new Asthma Diary Encounter Composition  
+	H. Other API services  
+	    1. Access the ALISS 'Local community resources' service    
+			2. Access the NHS Choices Patient advice service - HTML  
+			3. Access the NHS Choices Patient advice service - XML    
+			4. Access the Indizen SNOMED CT Terminology browser service  
 
 ###A. Retrieve an Ehrscape session token
 
@@ -442,7 +443,7 @@ Headers:
 	...
 ````
 
-###3. Access the Indizen SNOMED CT Terminology browser service
+###4. Access the Indizen SNOMED CT Terminology browser service
 
 This API call to the [Indizen](www.indizen.com/index.php/en/) Terminology serviceretreives SNOMED CT terms matching ``asthma`` in XML format.
 
