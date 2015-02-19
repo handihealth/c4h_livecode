@@ -1,7 +1,9 @@
-##C4H Asthma Diary Technical tasks
-This document describes the series of API calls required to c for the Astmas Diary app.
+##C4H Asthma Diary Ehrscape Technical tasks
+This document describes the series of Ehrscape API calls required for the Asthma Diary app.
 
-###A. Retrieve session token
+This document assumes a base level of understanding of the Ehrscape API and the use of openEHR - further details can be found at [Overview of openEHR and Ehrscape](/docs/training/openehr_intro.md).
+
+###A. Retrieve an Ehrscape session token
 
 The first step in working with Ehrscape is to retrieve the session token. This allows subsequent API calls to be made without needing to login on each occasion.
 The session should be formally closed when you are finished
@@ -293,8 +295,7 @@ Return:
 }
 ````
 
-
-###C. Persist a new Asthma Diary Entry
+###E. Persist a new Asthma Diary Entry
 
 All openEHR data is persisted as a COMPOSITION (document) class. openEHR data can be highly structured and potentially complex. To simplify the challenge of persisting openEHR data, examples of Dental Assessment 'target composition' data instanceshave been provided in different formats. HANDI-HOPD EhrScape will accept any of these formats and the data is in each example is persisted identically. Other openEHR servers such as OceanEHR, Code24 and Cabolabs currently only support the RAW XML format.
 
@@ -321,152 +322,3 @@ A typical CURL to POST (persist) FLAT JSON is ..
    ...
 
 
-   ##Ehrscape domains and Marand EhrExplorer
-
-   Ehrscape is set up as a set of 'domains', each of which is populated with its own dummy patient data and openEHR templates.
-
-   Each Ehrscape domain has its own login and password.
-
-   There are 2 methods of accessing the ehrscape API:
-
-   1. Set up a sessionID variable via the GET /session call. This returns a token that can be supplied in the headers of any subsequent API calls.
-
-   2. Create a Basic Authentication string and pass this to each API call.
-
-   The ehrscape Domain that is being used for C4H Training is
-
-       login: ch4_train
-       password: ch4_train99
-
-       Basic Authentication: Basic YzRoX3RyYWluOmM0aF90cmFpbjk5
-
-   #### Marand EhrExplorer
-
-   The Marand Ehr Explorer tool is primarily used to create openEHR queries which will not be used much in this challenge but it may be helpful in allowing you to examine the openEHR templates which define the App chalenge dataset.
-
-   1. Browse to [EHRExplorer](https://dev.ehrscape.com/explorer/)
-   2. Enter the name and password for the Code4Health Dental domain `login:c4h_dental pwd:babyteeth23`
-   3. Leave the domain field as `'ehrscape'`
-
-   ![EHRExplorer](./img/ehr_explorer.png)
-   In the navigation bar on the left you can double-click on the `C4H Asthma Diary Encounter` template, which will open the template in the bottom-right panel. Right-click on nodes for further details of the constraints applied.
-
-   e.g. If you navigate to **'Plaque Control'** and right-click you can examine the internal *'atcode'* constraints allowed for this element.
-
-   #### Ehrscape API browser
-
-   The Marand Ehr Explorer tool is primarily used to create openEHR queries which will not be used much in this challenge but it may be helpful in allowing you to examine the openEHR templates which define the App chalenge dataset.
-
-   1. Browse to [EHRScape API Explorer](https://dev.ehrscape.com/api-explorer.html)
-   2. Press the ![Settings button](./img/tool_button.png) tool setting button and set userName to `c4h_train` and password to `c4h_train99`
-   3. Any test calls in the API browser will now work against the Code4health Dental App challenge domain.
-
-
-   #### Using Postman to test API calls
-
-   The [Postman add-on](http://getpostman.com) is vey useful for testing API calls outside of an application context.
-   Postman collection and environment files are available for the C4H training environment.
-
-
-   ### Some basic openEHR/Ehrscape concepts
-
-   The HANDI-HOPD Ehrscape API consumes, retrieves and queries patient healthcare data using a standardised specification and querying format defined by the openEHR Foundation. openEHR is complex and can be difficult for novices to understand (even those with a solid technical background) but the Ehrscape API considerably simplifies the interface with openEHR systems.
-
-   **Clinical Information components**
-   [openEHR](http://openehr.org) provides a way for clinicians to define and share open-source, vendor-neutral clinical information components ('archetypes' and 'templates') which can be consumed, persisted and queried by different technology stacks, as long as they adhere to the openEHR specifications. Examples of archetypes used in this project are `'Procedure', 'Symptom', and 'Imaging result'`. These are managed by the openEHR Foundation using the [Clinical Knowledge Manager](http://openehr.org/ckm) tool and mirrored to [Github](https://github.com/openEHR/CKM-mirror), with a CC-BY-SA licence.
-
-###Handling specific openEHR datatypes
-
-**text**  
-Text handling is normally straightforward.
-
-    FLAT + STRUCTURED
-
-  "synopsis": [
-       "Significant dental issues."
-    ]
-
-**codedText**  
-For an external terminology, the terminologyId, code and text value must be supplied but in JSON FLAT and STRUCTURED formats only the local 'atcode' needs to be supplied.
-
-````
-STRUCTURED JSON format
-
-  Internal (local) code:
-  "dental_swelling": [
-          {
-            "|code": "at0006",
-          }
-    ]
-
-    External terminology:
-  "symptom_name": [
-      {
-        "|code": "102616008",
-        "|terminology": "SNOMED-CT",
-        "|value": "Painful mouth"
-      }
-    ]
-
-  FLAT JSON format
-
-  Internal (local) code:
-  "community_dental_final_assessment_letter/examination_findings:0/physical_examination_findings:0/oral_examination/dental_swelling|code": "at0006"
-
-  External terminology:
-    "community_dental_final_assessment_letter/history:0/story_history:0/symptom:0/symptom_name|value": "Painful mouth",
-  "community_dental_final_assessment_letter/history:0/story_history:0/symptom:0/symptom_name|code": "102616008",
-  "community_dental_final_assessment_letter/history:0/story_history:0/symptom:0/symptom_name|terminology": "SNOMED-CT"
-````
-
-**ordinal**  
-For JSON FLAT and STRUCTURED formats only the local 'atcode' needs to be supplied although the ordinal and text value cacomplete are also accpeted
-
-````
-FLAT JSON format
-  "community_dental_final_assessment_letter/assessment_scales/dental_rag_score:0/caries_tooth_decay/caries_risk|code": "at0024"
-
-STRUCTURED format
-
-  "caries_risk": [
-      {
-        "|code": "at0024",
-      }
-  ]
-
-  or
-
-  "caries_risk": [
-      {
-        "|code": "at0024",
-        "|ordinal": 2,
-        "|value": "Red"
-      }
-  ]
-
-
-**date**  
-Dates need to be persisted in the [ISO8061 format.](http://www.w3.org/TR/NOTE-datetime) and should be displayed in CUI format e.g. 12-Nov-1958
-
-
-### Tricky issues
-
-**Converting UI checkboxes to/from codedText**  
-
-In a number of places, the UI may best be represented as a set of checkboxes, while the underlying data is modelled as codedText.
-
-e.g. Symptoms
-
-While it may seem more easier and more logical to use a boolean datatype, this is a common pattern in openEHR datasets which are designed to be interoperable and extensible. Experience has shown that exapnsion of the target valueset and alignment to external terminologies is easier if an enumerated list of codedText is used rather than boolean.
-
-In the case of 'Symptom' the rule is ...
-
-    If the checkbox is ticked, populate the Symptom name with the SNOMED-CT term
-    If the checkbox is unticked, omit the Symptom name element completely.
-
-Conversely when loading a persisted dataset, the checkbox should only be checked if the Symptom name element is present and contains SNOMED-CT term 102616008.
-
-
-**Multiple occurrence data**  
-
-Some aspects of the form e.g Symptoms are handled as multiple occurences of the same data point in the underlying dataset.
