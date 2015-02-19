@@ -1,25 +1,28 @@
 ##C4H Asthma Diary Ehrscape Technical tasks
-This document describes the series of Ehrscape API calls required for the Asthma Diary app and assumes a base level of understanding of the Ehrscape API and the use of openEHR - further details can be found at [Overview of openEHR and Ehrscape](/docs/training/openehr_intro.md).
+This document describes the series of [Ehrscape API](https://dev.ehrscape.com/api-explorer.html) calls required for the Asthma Diary app and assumes a base level of understanding of that API and the use of openEHR - further details can be found at [Overview of openEHR and Ehrscape](/docs/training/openehr_intro.md).
 
-The steps covered are...
+The steps covered are...  
+  
+* Open the Ehrscape Session
+* Retrieve Patient's subjectId from the demographics service, based on NHS Number
+* Retrieve Patient's ehrId from Ehrscape, based on their subjectId
 
-  A. Retrieve an Ehrscape Session token   
-  B. Retrieve Patient's subjectId from the demographics service, based on NHS Number  
-  C. Retrieve Patient's ehrId from Ehrscape, based on their subjectId 
-  D. Retrieve list of Patient's recent Asthma Diary Entry compositions  
-  E. Retrieve a single Asthma Diary Encounter composition  
-  F. Retrieve detailed list of recent Asthma Diary Entries for charting purposes  
-	G. Persist a new Asthma Diary Encounter Composition  
-	H. Other API services  
-	    1. Access the ALISS 'Local community resources' service    
-			2. Access the NHS Choices Patient advice service - HTML  
-			3. Access the NHS Choices Patient advice service - XML    
-			4. Access the Indizen SNOMED CT Terminology browser service  
+* Retrieve list of Patient's recent Asthma Diary Entry compositions
+* Retrieve a single Asthma Diary Encounter composition
+* Retrieve detailed list of recent Asthma Diary Entries for charting purposes
+* Persist a new Asthma Diary Encounter Composition
+* Close the Ehrscape Session
+	
+* Other API services  
+  * Access the ALISS 'Local community resources' service
+  * Access the NHS Choices Patient advice service - HTML  
+	* Access the NHS Choices Patient advice service - XML    
+	* Access the Indizen SNOMED CT Terminology browser service  
 
-###A. Retrieve an Ehrscape session token
+###A. Open the Ehrscape session
 
-The first step in working with Ehrscape is to retrieve the session token. This allows subsequent API calls to be made without needing to login on each occasion.
-The session should be formally closed when you are finished
+The first step in working with Ehrscape is to open a Session and retrieve the ``sessionId`` token. This allows subsequent API calls to be made without needing to login on each occasion.  
+The session should be formally closed when you are finished.
 
 #####Call: Create a new openEHR session:
  ````
@@ -101,7 +104,7 @@ Headers:
 Now that we have the patient's ehrId we can use it to locate their existing records.
 We use an Archetype Query Language (AQL) call to retrieve a list of the identifiers and dates of existing Asthma Diary encounter ``composition`` records. Compositions are document-level records which act as the container for all openEHR patient data.
 
-The AQL statement which retrieves the compositionId for the most recent 10 Diary Entries is
+#####AQL statement
 
 ````
 select
@@ -152,7 +155,7 @@ Headers:
 
 ###E. Retrieve a single Asthma Diary Encounter composition
 
-We will use the results of the previous query to retrieve one of the compositions via its compositionId
+We will use the results of the previous query to retrieve one of the compositions via its ''compositionId''.
 
 #####Call: Returns the specified Composition in FLAT JSON format.
 ````
@@ -311,7 +314,7 @@ Headers:
 
 ###G. Persist a new Asthma Diary Encounter Composition
 
-All openEHR data is persisted as a COMPOSITION (document) class. openEHR data can be highly structured and potentially complex. To simplify the challenge of persisting openEHR data, examples of  'target composition' data instances have been provided in the Ehrscape FLAT JSON format
+All openEHR data is persisted as a COMPOSITION (document) class. openEHR data can be highly structured and potentially complex. To simplify the challenge of persisting openEHR data, examples of  'target composition' data instances have been provided in the Ehrscape ``FLAT JSON`` format.
 
 Once the data is assembled in the correct format, the actual service call is very simple requiring only the setting of simple parameters and headers.
 
@@ -323,8 +326,7 @@ POST /rest/v1/composition?ehrId=d848f3b3-25a2-4eff-bd94-acfb425cf1d8&templateId=
 
 Headers:
  Ehr-Session: {{sessionId}} //The value of the sessionId
-````
-````json 
+
  {
   "ctx/composer_name": "Steve Walford",
   "ctx/health_care_facility|id": "999999-345",
@@ -334,15 +336,15 @@ Headers:
   "ctx/language": "en",
   "ctx/territory": "GB",
   "ctx/time": "2014-09-25T09:11:02.518+02:00",
-    "asthma_diary_entry/history:0/story_history/comment": "Back to normal",
-    "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/test_result_name|code": "at0071",
-    "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/best_predicted_result|magnitude": 630,
-    "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/best_predicted_result|unit": "l/min",
-    "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_result|magnitude": 630,
-    "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_result|unit": "l/min",
-    "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio|numerator": 100,
-    "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio|denominator": 100.00,
-    "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pefr_score": "Green"
+  "asthma_diary_entry/history:0/story_history/comment": "Back to normal",
+  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/test_result_name|code": "at0071",
+  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/best_predicted_result|magnitude": 630,
+  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/best_predicted_result|unit": "l/min",
+  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_result|magnitude": 630,
+  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_result|unit": "l/min",
+  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio|numerator": 100,
+  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio|denominator": 100.00,
+  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pefr_score": "Green"
 }
 ````
 #####Return:
@@ -352,23 +354,39 @@ Headers:
 }
 ````
 
-##H. Other Services
+###H. Close the Ehrscape session
 
+The last step in working with Ehrscape is to close the session.
+
+#####Call: Create a new openEHR session:
+ ````
+ DELETE /rest/v1/session?sessionId={{sessionId}}
+ ````
+#####Returns:
+````json
+{
+  "sessionId": "2dcd6528-0471-4950-82fa-a018272f1339"
+}
+````
+
+##I. Other Services
+
+These are other non-Ehrscape API services.
 
 ###1. Access the ALISS 'Local community resources' service
 
 [ALISS](http://www.aliss.org/) (A Local Information System for Scotland) is a search and collaboration tool for Health and Wellbeing resources. Originally developed in Scotland, it is now us used in regions across the UK. 
 
-Further search options e.g by locality are avaiable from the [ALISS API documentation site](http://aliss.readthedocs.org/en/latest/search_api/)
+Further search options e.g by locality are avaiable from the [ALISS API documentation site](http://aliss.readthedocs.org/en/latest/search_api/).
 
-Call: Search the ALLIS database for resources related to asthma
+#####Call: Search the ALLIS database for resources related to asthma
 ````
 GET http://www.aliss.org/api/v2/search/?q=asthma
 
 Headers:
  None 
 ````
-Return:
+#####Return:
 ````json
 {
     "count": 91, 
@@ -406,7 +424,7 @@ Return:
 
 ###2. Access the NHS Choices Patient advice service - HTML
 
-This API call retreives NHS Choices patientinformation 
+This API call retreives NHS Choices patient information page for Asthma in HTML format.
 
 #####Call: Search the NHS Choices database for resources related to asthma, returning an HTML page
 ````
