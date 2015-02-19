@@ -1,0 +1,16 @@
+select
+    b_a/data[at0001]/events[at0002]/data[at0003],
+    a/uid/value as uid_value,
+    a/context/start_time/value as context_start_time,
+    b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0008, 'Best predicted result']/value as Best_predicted_result,
+    b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0058]/value as Actual_Result,
+    b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0099, 'PEFR Score']/value as PEFR_Score,
+    b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0122]/value/numerator as Actual_predicted_Ratio_numerator
+from EHR e
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1]
+contains (
+    OBSERVATION b_b[openEHR-EHR-OBSERVATION.pulmonary_function.v1] and
+    OBSERVATION b_a[openEHR-EHR-OBSERVATION.story.v1])
+where a/name/value='Asthma Diary Entry'
+order by a/context/start_time/value desc
+offset 0 limit 10

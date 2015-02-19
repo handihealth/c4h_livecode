@@ -1,0 +1,8 @@
+select
+    a/uid/value as uid_value,
+    a/context/start_time/value as context_start_time
+from EHR e
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1]
+where a/name/value='Asthma Diary Entry'
+order by a/context/start_time/value desc
+offset 0 limit 10

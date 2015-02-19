@@ -1,0 +1,163 @@
+{
+    "clinical_handover_summary": {
+        "_uid": [
+            "ee9ded3d-0b05-49ee-96c7-713631c16cee::c4h_train.ehrscape.com::1"
+        ],
+        "admission_details": [
+            {
+                "inpatient_admission": [
+                    {
+                        "date_of_admission": [
+                            "2015-02-17T13:30:37.553+01:00"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "allergies_and_adverse_reactions": [
+            {
+                "adverse_reaction": [
+                    {
+                        "causative_agent": [
+                            {
+                                "|code": "91936005",
+                                "|terminology": "SNOMED-CT",
+                                "|value": "allergy to penicillin"
+                            }
+                        ],
+                        "reaction_details": [
+                            {
+                                "date_recorded": [
+                                    "2012-12-17T13:30:37.553+01:00"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "clinical_summary": [
+            {
+                "clinical_synopsis": [
+                    {
+                        "clinical_summary": [
+                            "Condition remains brittle"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "context": [
+            {
+                "setting": [
+                    {
+                        "|code": "238",
+                        "|terminology": "openehr",
+                        "|value": "other care"
+                    }
+                ],
+                "start_time": [
+                    "2015-02-22T23:11:02.518+01:00"
+                ]
+            }
+        ],
+        "current_medication": [
+            {
+                "medication_statement": [
+                    {
+                        "medication_item": [
+                            {
+                                "dose_amount_description": [
+                                    "40mg"
+                                ],
+                                "dose_timing_description": [
+                                    "at night"
+                                ],
+                                "medication_name": [
+                                    {
+                                        "|code": "320000009",
+                                        "|terminology": "SNOMED-CT",
+                                        "|value": "Simvastatin 40mg tablet"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "diagnoses": [
+            {
+                "problem_diagnosis": [
+                    {
+                        "date_of_onset": [
+                            "2015-02-17T13:30:37.553+01:00"
+                        ],
+                        "diagnosis": [
+                            {
+                                "|code": "301485011",
+                                "|terminology": "SNOMED-CT",
+                                "|value": "asthma"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "history": [
+            {
+                "reason_for_encounter": [
+                    {
+                        "reason_for_admission": [
+                            "Wheeze, chest tightness"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "plan_and_requested_actions": [
+            {
+                "cpr_decision": [
+                    {
+                        "cpr_decision": [
+                            {
+                                "|code": "at0004",
+                                "|terminology": "local",
+                                "|value": "For attempted cardio-pulmonary resuscitation"
+                            }
+                        ],
+                        "date_of_cpr_decision": [
+                            "2015-02-17T13:30:37.553+01:00"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "problems_and_issues": [
+            {
+                "problem_diagnosis": [
+                    {
+                        "date_of_onset": [
+                            "1993-01-17T13:30:37.553+01:00"
+                        ],
+                        "problem": [
+                            "Hay fever"
+                        ]
+                    },
+                    {
+                        "date_of_onset": [
+                            "2000-07-17T14:30:37.553+02:00"
+                        ],
+                        "problem": [
+                            {
+                                "|code": "299757012",
+                                "|terminology": "SNOMED-CT",
+                                "|value": "angina pectoris"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
