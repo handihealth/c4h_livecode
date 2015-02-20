@@ -285,122 +285,1399 @@ Headers:
 
 We now use a more complex Archetype Query Language (AQL) call to retrieve a the key datapoints of the most recent Handover Summary``composition``.
 
-AQL allows for very flexible querying and output. The output chosen here is relatively flat, returning a set of simple name/pair values. This is simple to process but does have the disadvantage of causing some duplication of returned rows to accomodate multiple symptoms. More complex AQL structures can be returned but are more difficult to process.
+AQL allows for very flexible querying and output. The output chosen here is somewhat nested, in order to handle mltiple entries e.g multiple medications.
 
 #####AQL statement
 ````
 select
     a/uid/value as uid_value,
     a/context/start_time/value as context_start_time,
-    b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0008, 'Best predicted result']/value/magnitude as Best_predicted_result,
-    b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0058]/value/magnitude as Actual_Result,
-    b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0099, 'PEFR Score']/value/magnitude as PEFR_Score,
-    b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0122]/value/numerator as Actual_predicted_Ratio_numerator,
-    b_c/items[at0001]/value/value as Symptom_name,
-    b_a/data[at0001]/events[at0002]/data[at0003]/items[at0004]/value/value as Comment
-from EHR e
-contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1]
+    b_a/data[at0001]/items[at0002]/value/value as Date_of_admission,
+    b_b/data[at0001]/items[at0004, 'Reason for admission']/value/value as Reason_for_admission,
+    b_c/data[at0001]/items[at0002, 'Clinical summary']/value as Clinical_summary,
+    b_d as Medications,
+    b_f as Allergies,
+    b_g as Diagnoses,
+    b_h as Problems,
+    b_i/data[at0001]/items[at0003]/value as CPR_decision,
+    b_i/data[at0001]/items[at0002]/value as Date_of_CPR_decision
+from EHR e[ehr_id/value='d848f3b3-25a2-4eff-bd94-acfb425cf1d8']
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.report.v1]
 contains (
-    OBSERVATION b_b[openEHR-EHR-OBSERVATION.pulmonary_function.v1] or
-    OBSERVATION b_a[openEHR-EHR-OBSERVATION.story.v1] or
-    CLUSTER b_c[openEHR-EHR-CLUSTER.symptom.v1])
-where a/name/value='Asthma Diary Entry'
+    ADMIN_ENTRY b_a[openEHR-EHR-ADMIN_ENTRY.inpatient_admission_uk.v1] or
+    EVALUATION b_b[openEHR-EHR-EVALUATION.reason_for_encounter.v1] or
+    EVALUATION b_c[openEHR-EHR-EVALUATION.clinical_synopsis.v1] or
+    SECTION b_d[openEHR-EHR-SECTION.current_medication_rcp.v1] or
+    SECTION b_f[openEHR-EHR-SECTION.allergies_adverse_reactions_rcp.v1] or
+    SECTION b_g[openEHR-EHR-SECTION.diagnoses_rcp.v1] or
+    SECTION b_h[openEHR-EHR-SECTION.problems_issues_rcp.v1] or
+    EVALUATION b_i[openEHR-EHR-EVALUATION.cpr_decision_uk.v1])
+where a/name/value='Clinical Handover Summary'
 order by a/context/start_time/value desc
 offset 0 limit 10
-`````
-**NOTE: In this case the resultset carries some 'duplicated rows' where the composition contains multiple symptoms.**
 
 #####Call: Run AQL query and return a Resultset
 ````
-GET /rest/v1/query?aql=select a/uid/value as uid_value, a/context/start_time/value as context_start_time,     b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0008, 'Best predicted result']/value/magnitude as Best_predicted_result,     b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0058]/value/magnitude as Actual_Result,  b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0099, 'PEFR Score']/value/magnitude as PEFR_Score,     b_b/data[at0001]/events[at0002]/data[at0003]/items[at0127]/items[at0057]/items[at0122]/value/numerator as Actual_predicted_Ratio_numerator, b_c/items[at0001]/value/value as Symptom_name,     b_a/data[at0001]/events[at0002]/data[at0003]/items[at0004]/value/value as Comment from EHR e contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1] contains (     OBSERVATION b_b[openEHR-EHR-OBSERVATION.pulmonary_function.v1] or     OBSERVATION b_a[openEHR-EHR-OBSERVATION.story.v1] or     CLUSTER b_c[openEHR-EHR-CLUSTER.symptom.v1]) where a/name/value='Asthma Diary Entry' order by a/context/start_time/value desc offset 0 limit 10  
-
+GET /rest/v1/query?aql=select a/uid/value as uid_value, a/context/start_time/value as context_start_time, b_a/data[at0001]/items[at0002]/value/value as Date_of_admission, b_b/data[at0001]/items[at0004, 'Reason for admission']/value/value as Reason_for_admission, b_c/data[at0001]/items[at0002, 'Clinical summary']/value as Clinical_summary, b_d as Medications, b_f as Allergies, b_g as Diagnoses, b_h as Problems,  b_i/data[at0001]/items[at0003]/value as CPR_decision,  b_i/data[at0001]/items[at0002]/value as Date_of_CPR_decision from EHR e[ehr_id/value='d848f3b3-25a2-4eff-bd94-acfb425cf1d8'] contains COMPOSITION a[openEHR-EHR-COMPOSITION.report.v1] contains (  ADMIN_ENTRY b_a[openEHR-EHR-ADMIN_ENTRY.inpatient_admission_uk.v1] or     EVALUATION b_b[openEHR-EHR-EVALUATION.reason_for_encounter.v1] or  EVALUATION b_c[openEHR-EHR-EVALUATION.clinical_synopsis.v1] or SECTION b_d[openEHR-EHR-SECTION.current_medication_rcp.v1] or SECTION b_f[openEHR-EHR-SECTION.allergies_adverse_reactions_rcp.v1] or     SECTION b_g[openEHR-EHR-SECTION.diagnoses_rcp.v1] or SECTION b_h[openEHR-EHR-SECTION.problems_issues_rcp.v1] or EVALUATION b_i[openEHR-EHR-EVALUATION.cpr_decision_uk.v1]) where a/name/value='Clinical Handover Summary' order by a/context/start_time/value desc offset 0 limit 10
 Headers:
  Ehr-Session: {{sessionId}} //The value of the sessionId
 ````
 #####Return:
 ````json
-"resultSet": [
-       {
-           "Symptom_name": "chest tightness",
-           "Comment": "Feeling much better",
-           "context_start_time": "2014-09-23T09:11:02.518+02:00",
-           "Actual_Result": 550,
-           "PEFR_Score": null,
-           "uid_value": "6466886b-1a89-4362-b253-2edb8f45d968::c4h_train.ehrscape.com::1",
-           "Actual_predicted_Ratio_numerator": 87.3,
-           "Best_predicted_result": 630
-       },
-       {
-           "Symptom_name": "chest tightness",
-           "Comment": "Feeling much better",
-           "context_start_time": "2014-09-22T09:11:02.518+02:00",
-           "Actual_Result": 491,
-           "PEFR_Score": null,
-           "uid_value": "67d28ff7-216c-4744-9737-1d0be5e300e1::c4h_train.ehrscape.com::1",
-           "Actual_predicted_Ratio_numerator": 78,
-           "Best_predicted_result": 630
-       },
-       {
-           "Symptom_name": "shortness of breath",
-           "Comment": "Feeling much better",
-           "context_start_time": "2014-09-22T09:11:02.518+02:00",
-           "Actual_Result": 491,
-           "PEFR_Score": null,
-           "uid_value": "67d28ff7-216c-4744-9737-1d0be5e300e1::c4h_train.ehrscape.com::1",
-           "Actual_predicted_Ratio_numerator": 78,
-           "Best_predicted_result": 630
-       },
-       {
-           "Symptom_name": "wheezing",
-           "Comment": "Slightly better",
-           "context_start_time": "2014-09-21T21:21:02.518+02:00",
-           "Actual_Result": 308,
-           "PEFR_Score": null,
-           "uid_value": "5b908abd-329b-4f7a-8e27-86fe07b141ac::c4h_train.ehrscape.com::1",
-           "Actual_predicted_Ratio_numerator": 49,
-           "Best_predicted_result": 630
-       },
-       {
-           "Symptom_name": "shortness of breath",
-           "Comment": "Slightly better",
-           "context_start_time": "2014-09-21T21:21:02.518+02:00",
-           "Actual_Result": 308,
-           "PEFR_Score": null,
-           "uid_value": "5b908abd-329b-4f7a-8e27-86fe07b141ac::c4h_train.ehrscape.com::1",
-           "Actual_predicted_Ratio_numerator": 49,
-           "Best_predicted_result": 630
-       },
-       {
-           "Symptom_name": "coughing",
-           "Comment": "Slightly better",
-           "context_start_time": "2014-09-21T21:21:02.518+02:00",
-           "Actual_Result": 308,
-           "PEFR_Score": null,
-           "uid_value": "5b908abd-329b-4f7a-8e27-86fe07b141ac::c4h_train.ehrscape.com::1",
-           "Actual_predicted_Ratio_numerator": 49,
-           "Best_predicted_result": 630
-       },
-       {
-           "Symptom_name": "shortness of breath",
-           "Comment": "Think I may have the flu - started Prednisolone",
-           "context_start_time": "2014-09-21T08:11:02.518+02:00",
-           "Actual_Result": 289,
-           "PEFR_Score": null,
-           "uid_value": "57a15efd-f540-4ec5-bbac-0f5e6a0d90fd::c4h_train.ehrscape.com::1",
-           "Actual_predicted_Ratio_numerator": 46,
-           "Best_predicted_result": 630
-       },
-       {
-           "Symptom_name": null,
-           "Comment": null,
-           "context_start_time": "2014-09-20T09:11:02.518+02:00",
-           "Actual_Result": 580,
-           "PEFR_Score": null,
-           "uid_value": "10ade55e-75d1-4278-bf3b-7ef20bcddee8::c4h_train.ehrscape.com::1",
-           "Actual_predicted_Ratio_numerator": 92,
-           "Best_predicted_result": 630
-       }
-   ]
+{
+ "resultSet": [
+        {
+            "Problems": {
+                "@class": "SECTION",
+                "name": {
+                    "@class": "DV_TEXT",
+                    "value": "Problems and issues"
+                },
+                "archetype_details": {
+                    "@class": "ARCHETYPED",
+                    "archetype_id": {
+                        "@class": "ARCHETYPE_ID",
+                        "value": "openEHR-EHR-SECTION.problems_issues_rcp.v1"
+                    },
+                    "rm_version": "1.0.1"
+                },
+                "archetype_node_id": "openEHR-EHR-SECTION.problems_issues_rcp.v1",
+                "items": [
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Problem/Diagnosis"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.problem_diagnosis.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "structure"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Problem"
+                                    },
+                                    "archetype_node_id": "at0002",
+                                    "value": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Hay fever"
+                                    }
+                                },
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Date of Onset"
+                                    },
+                                    "archetype_node_id": "at0003",
+                                    "value": {
+                                        "@class": "DV_DATE_TIME",
+                                        "value": "1993-01-17T13:30:37.553+01:00"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Problem/Diagnosis #2"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.problem_diagnosis.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "structure"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Problem"
+                                    },
+                                    "archetype_node_id": "at0002",
+                                    "value": {
+                                        "@class": "DV_CODED_TEXT",
+                                        "value": "angina pectoris",
+                                        "defining_code": {
+                                            "@class": "CODE_PHRASE",
+                                            "terminology_id": {
+                                                "@class": "TERMINOLOGY_ID",
+                                                "value": "SNOMED-CT"
+                                            },
+                                            "code_string": "299757012"
+                                        }
+                                    }
+                                },
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Date of Onset"
+                                    },
+                                    "archetype_node_id": "at0003",
+                                    "value": {
+                                        "@class": "DV_DATE_TIME",
+                                        "value": "2000-07-17T14:30:37.553+02:00"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Clinical_summary": {
+                "@class": "DV_TEXT",
+                "value": "Worsening - started Predisolone"
+            },
+            "context_start_time": "2015-02-23T23:18:02.518+01:00",
+            "Reason_for_admission": "Wheeze, chest tightness",
+            "uid_value": "47bdd9fc-8780-4068-8465-23871934ed58::c4h_train.ehrscape.com::1",
+            "Medications": {
+                "@class": "SECTION",
+                "name": {
+                    "@class": "DV_TEXT",
+                    "value": "Current medication"
+                },
+                "archetype_details": {
+                    "@class": "ARCHETYPED",
+                    "archetype_id": {
+                        "@class": "ARCHETYPE_ID",
+                        "value": "openEHR-EHR-SECTION.current_medication_rcp.v1"
+                    },
+                    "rm_version": "1.0.1"
+                },
+                "archetype_node_id": "openEHR-EHR-SECTION.current_medication_rcp.v1",
+                "items": [
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Medication statement"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.medication_statement_uk.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.medication_statement_uk.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "Tree"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "CLUSTER",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Medication item"
+                                    },
+                                    "archetype_details": {
+                                        "@class": "ARCHETYPED",
+                                        "archetype_id": {
+                                            "@class": "ARCHETYPE_ID",
+                                            "value": "openEHR-EHR-CLUSTER.medication_item.v1"
+                                        },
+                                        "rm_version": "1.0.1"
+                                    },
+                                    "archetype_node_id": "openEHR-EHR-CLUSTER.medication_item.v1",
+                                    "items": [
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Medication name"
+                                            },
+                                            "archetype_node_id": "at0001",
+                                            "value": {
+                                                "@class": "DV_CODED_TEXT",
+                                                "value": "Salbutamol 100micrograms/dose breath actuated inhaler CFC free",
+                                                "defining_code": {
+                                                    "@class": "CODE_PHRASE",
+                                                    "terminology_id": {
+                                                        "@class": "TERMINOLOGY_ID",
+                                                        "value": "SNOMED-CT"
+                                                    },
+                                                    "code_string": "320151000"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose amount description"
+                                            },
+                                            "archetype_node_id": "at0020",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "2 puffs"
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose timing description"
+                                            },
+                                            "archetype_node_id": "at0021",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "as required for wheeze"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Medication statement #2"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.medication_statement_uk.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.medication_statement_uk.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "Tree"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "CLUSTER",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Medication item"
+                                    },
+                                    "archetype_details": {
+                                        "@class": "ARCHETYPED",
+                                        "archetype_id": {
+                                            "@class": "ARCHETYPE_ID",
+                                            "value": "openEHR-EHR-CLUSTER.medication_item.v1"
+                                        },
+                                        "rm_version": "1.0.1"
+                                    },
+                                    "archetype_node_id": "openEHR-EHR-CLUSTER.medication_item.v1",
+                                    "items": [
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Medication name"
+                                            },
+                                            "archetype_node_id": "at0001",
+                                            "value": {
+                                                "@class": "DV_CODED_TEXT",
+                                                "value": "Simvastatin 40mg tablet",
+                                                "defining_code": {
+                                                    "@class": "CODE_PHRASE",
+                                                    "terminology_id": {
+                                                        "@class": "TERMINOLOGY_ID",
+                                                        "value": "SNOMED-CT"
+                                                    },
+                                                    "code_string": "320000009"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose amount description"
+                                            },
+                                            "archetype_node_id": "at0020",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "40mg"
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose timing description"
+                                            },
+                                            "archetype_node_id": "at0021",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "at night"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Medication statement #3"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.medication_statement_uk.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.medication_statement_uk.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "Tree"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "CLUSTER",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Medication item"
+                                    },
+                                    "archetype_details": {
+                                        "@class": "ARCHETYPED",
+                                        "archetype_id": {
+                                            "@class": "ARCHETYPE_ID",
+                                            "value": "openEHR-EHR-CLUSTER.medication_item.v1"
+                                        },
+                                        "rm_version": "1.0.1"
+                                    },
+                                    "archetype_node_id": "openEHR-EHR-CLUSTER.medication_item.v1",
+                                    "items": [
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Medication name"
+                                            },
+                                            "archetype_node_id": "at0001",
+                                            "value": {
+                                                "@class": "DV_CODED_TEXT",
+                                                "value": "Prednisolone",
+                                                "defining_code": {
+                                                    "@class": "CODE_PHRASE",
+                                                    "terminology_id": {
+                                                        "@class": "TERMINOLOGY_ID",
+                                                        "value": "SNOMED-CT"
+                                                    },
+                                                    "code_string": "496302014"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose amount description"
+                                            },
+                                            "archetype_node_id": "at0020",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "40mg"
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose timing description"
+                                            },
+                                            "archetype_node_id": "at0021",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "in the morning"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Date_of_admission": "2015-02-17T13:30:37.553+01:00",
+            "Date_of_CPR_decision": {
+                "@class": "DV_DATE_TIME",
+                "value": "2015-02-17T13:30:37.553+01:00"
+            },
+            "Allergies": {
+                "@class": "SECTION",
+                "name": {
+                    "@class": "DV_TEXT",
+                    "value": "Allergies and adverse reactions"
+                },
+                "archetype_details": {
+                    "@class": "ARCHETYPED",
+                    "archetype_id": {
+                        "@class": "ARCHETYPE_ID",
+                        "value": "openEHR-EHR-SECTION.allergies_adverse_reactions_rcp.v1"
+                    },
+                    "rm_version": "1.0.1"
+                },
+                "archetype_node_id": "openEHR-EHR-SECTION.allergies_adverse_reactions_rcp.v1",
+                "items": [
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Adverse reaction"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.adverse_reaction_uk.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.adverse_reaction_uk.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "Tree"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Causative agent"
+                                    },
+                                    "archetype_node_id": "at0002",
+                                    "value": {
+                                        "@class": "DV_CODED_TEXT",
+                                        "value": "allergy to penicillin",
+                                        "defining_code": {
+                                            "@class": "CODE_PHRASE",
+                                            "terminology_id": {
+                                                "@class": "TERMINOLOGY_ID",
+                                                "value": "SNOMED-CT"
+                                            },
+                                            "code_string": "91936005"
+                                        }
+                                    }
+                                },
+                                {
+                                    "@class": "CLUSTER",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Reaction details"
+                                    },
+                                    "archetype_node_id": "at0025",
+                                    "items": [
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Date recorded"
+                                            },
+                                            "archetype_node_id": "at0021",
+                                            "value": {
+                                                "@class": "DV_DATE_TIME",
+                                                "value": "2012-12-17T13:30:37.553+01:00"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Diagnoses": {
+                "@class": "SECTION",
+                "name": {
+                    "@class": "DV_TEXT",
+                    "value": "Diagnoses"
+                },
+                "archetype_details": {
+                    "@class": "ARCHETYPED",
+                    "archetype_id": {
+                        "@class": "ARCHETYPE_ID",
+                        "value": "openEHR-EHR-SECTION.diagnoses_rcp.v1"
+                    },
+                    "rm_version": "1.0.1"
+                },
+                "archetype_node_id": "openEHR-EHR-SECTION.diagnoses_rcp.v1",
+                "items": [
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Problem/Diagnosis"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.problem_diagnosis.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "structure"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Diagnosis"
+                                    },
+                                    "archetype_node_id": "at0002",
+                                    "value": {
+                                        "@class": "DV_CODED_TEXT",
+                                        "value": "asthma",
+                                        "defining_code": {
+                                            "@class": "CODE_PHRASE",
+                                            "terminology_id": {
+                                                "@class": "TERMINOLOGY_ID",
+                                                "value": "SNOMED-CT"
+                                            },
+                                            "code_string": "301485011"
+                                        }
+                                    }
+                                },
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Date of Onset"
+                                    },
+                                    "archetype_node_id": "at0003",
+                                    "value": {
+                                        "@class": "DV_DATE_TIME",
+                                        "value": "2015-02-17T13:30:37.553+01:00"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "CPR_decision": {
+                "@class": "DV_CODED_TEXT",
+                "value": "For attempted cardio-pulmonary resuscitation",
+                "defining_code": {
+                    "@class": "CODE_PHRASE",
+                    "terminology_id": {
+                        "@class": "TERMINOLOGY_ID",
+                        "value": "local"
+                    },
+                    "code_string": "at0004"
+                }
+            }
+        },
+        {
+            "Problems": {
+                "@class": "SECTION",
+                "name": {
+                    "@class": "DV_TEXT",
+                    "value": "Problems and issues"
+                },
+                "archetype_details": {
+                    "@class": "ARCHETYPED",
+                    "archetype_id": {
+                        "@class": "ARCHETYPE_ID",
+                        "value": "openEHR-EHR-SECTION.problems_issues_rcp.v1"
+                    },
+                    "rm_version": "1.0.1"
+                },
+                "archetype_node_id": "openEHR-EHR-SECTION.problems_issues_rcp.v1",
+                "items": [
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Problem/Diagnosis"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.problem_diagnosis.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "structure"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Problem"
+                                    },
+                                    "archetype_node_id": "at0002",
+                                    "value": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Hay fever"
+                                    }
+                                },
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Date of Onset"
+                                    },
+                                    "archetype_node_id": "at0003",
+                                    "value": {
+                                        "@class": "DV_DATE_TIME",
+                                        "value": "1993-01-17T13:30:37.553+01:00"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Problem/Diagnosis #2"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.problem_diagnosis.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "structure"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Problem"
+                                    },
+                                    "archetype_node_id": "at0002",
+                                    "value": {
+                                        "@class": "DV_CODED_TEXT",
+                                        "value": "angina pectoris",
+                                        "defining_code": {
+                                            "@class": "CODE_PHRASE",
+                                            "terminology_id": {
+                                                "@class": "TERMINOLOGY_ID",
+                                                "value": "SNOMED-CT"
+                                            },
+                                            "code_string": "299757012"
+                                        }
+                                    }
+                                },
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Date of Onset"
+                                    },
+                                    "archetype_node_id": "at0003",
+                                    "value": {
+                                        "@class": "DV_DATE_TIME",
+                                        "value": "2000-07-17T14:30:37.553+02:00"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Clinical_summary": {
+                "@class": "DV_TEXT",
+                "value": "Condition remains brittle"
+            },
+            "context_start_time": "2015-02-22T23:11:02.518+01:00",
+            "Reason_for_admission": "Wheeze, chest tightness",
+            "uid_value": "f74075a7-87a4-4655-a460-03737060968e::c4h_train.ehrscape.com::1",
+            "Medications": {
+                "@class": "SECTION",
+                "name": {
+                    "@class": "DV_TEXT",
+                    "value": "Current medication"
+                },
+                "archetype_details": {
+                    "@class": "ARCHETYPED",
+                    "archetype_id": {
+                        "@class": "ARCHETYPE_ID",
+                        "value": "openEHR-EHR-SECTION.current_medication_rcp.v1"
+                    },
+                    "rm_version": "1.0.1"
+                },
+                "archetype_node_id": "openEHR-EHR-SECTION.current_medication_rcp.v1",
+                "items": [
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Medication statement"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.medication_statement_uk.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.medication_statement_uk.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "Tree"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "CLUSTER",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Medication item"
+                                    },
+                                    "archetype_details": {
+                                        "@class": "ARCHETYPED",
+                                        "archetype_id": {
+                                            "@class": "ARCHETYPE_ID",
+                                            "value": "openEHR-EHR-CLUSTER.medication_item.v1"
+                                        },
+                                        "rm_version": "1.0.1"
+                                    },
+                                    "archetype_node_id": "openEHR-EHR-CLUSTER.medication_item.v1",
+                                    "items": [
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Medication name"
+                                            },
+                                            "archetype_node_id": "at0001",
+                                            "value": {
+                                                "@class": "DV_CODED_TEXT",
+                                                "value": "Salbutamol 100micrograms/dose breath actuated inhaler CFC free",
+                                                "defining_code": {
+                                                    "@class": "CODE_PHRASE",
+                                                    "terminology_id": {
+                                                        "@class": "TERMINOLOGY_ID",
+                                                        "value": "SNOMED-CT"
+                                                    },
+                                                    "code_string": "320151000"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose amount description"
+                                            },
+                                            "archetype_node_id": "at0020",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "2 puffs"
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose timing description"
+                                            },
+                                            "archetype_node_id": "at0021",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "as required for wheeze"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Medication statement #2"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.medication_statement_uk.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.medication_statement_uk.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "Tree"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "CLUSTER",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Medication item"
+                                    },
+                                    "archetype_details": {
+                                        "@class": "ARCHETYPED",
+                                        "archetype_id": {
+                                            "@class": "ARCHETYPE_ID",
+                                            "value": "openEHR-EHR-CLUSTER.medication_item.v1"
+                                        },
+                                        "rm_version": "1.0.1"
+                                    },
+                                    "archetype_node_id": "openEHR-EHR-CLUSTER.medication_item.v1",
+                                    "items": [
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Medication name"
+                                            },
+                                            "archetype_node_id": "at0001",
+                                            "value": {
+                                                "@class": "DV_CODED_TEXT",
+                                                "value": "Simvastatin 40mg tablet",
+                                                "defining_code": {
+                                                    "@class": "CODE_PHRASE",
+                                                    "terminology_id": {
+                                                        "@class": "TERMINOLOGY_ID",
+                                                        "value": "SNOMED-CT"
+                                                    },
+                                                    "code_string": "320000009"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose amount description"
+                                            },
+                                            "archetype_node_id": "at0020",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "40mg"
+                                            }
+                                        },
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Dose timing description"
+                                            },
+                                            "archetype_node_id": "at0021",
+                                            "value": {
+                                                "@class": "DV_TEXT",
+                                                "value": "at night"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Date_of_admission": "2015-02-17T13:30:37.553+01:00",
+            "Date_of_CPR_decision": {
+                "@class": "DV_DATE_TIME",
+                "value": "2015-02-17T13:30:37.553+01:00"
+            },
+            "Allergies": {
+                "@class": "SECTION",
+                "name": {
+                    "@class": "DV_TEXT",
+                    "value": "Allergies and adverse reactions"
+                },
+                "archetype_details": {
+                    "@class": "ARCHETYPED",
+                    "archetype_id": {
+                        "@class": "ARCHETYPE_ID",
+                        "value": "openEHR-EHR-SECTION.allergies_adverse_reactions_rcp.v1"
+                    },
+                    "rm_version": "1.0.1"
+                },
+                "archetype_node_id": "openEHR-EHR-SECTION.allergies_adverse_reactions_rcp.v1",
+                "items": [
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Adverse reaction"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.adverse_reaction_uk.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.adverse_reaction_uk.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "Tree"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Causative agent"
+                                    },
+                                    "archetype_node_id": "at0002",
+                                    "value": {
+                                        "@class": "DV_CODED_TEXT",
+                                        "value": "allergy to penicillin",
+                                        "defining_code": {
+                                            "@class": "CODE_PHRASE",
+                                            "terminology_id": {
+                                                "@class": "TERMINOLOGY_ID",
+                                                "value": "SNOMED-CT"
+                                            },
+                                            "code_string": "91936005"
+                                        }
+                                    }
+                                },
+                                {
+                                    "@class": "CLUSTER",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Reaction details"
+                                    },
+                                    "archetype_node_id": "at0025",
+                                    "items": [
+                                        {
+                                            "@class": "ELEMENT",
+                                            "name": {
+                                                "@class": "DV_TEXT",
+                                                "value": "Date recorded"
+                                            },
+                                            "archetype_node_id": "at0021",
+                                            "value": {
+                                                "@class": "DV_DATE_TIME",
+                                                "value": "2012-12-17T13:30:37.553+01:00"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Diagnoses": {
+                "@class": "SECTION",
+                "name": {
+                    "@class": "DV_TEXT",
+                    "value": "Diagnoses"
+                },
+                "archetype_details": {
+                    "@class": "ARCHETYPED",
+                    "archetype_id": {
+                        "@class": "ARCHETYPE_ID",
+                        "value": "openEHR-EHR-SECTION.diagnoses_rcp.v1"
+                    },
+                    "rm_version": "1.0.1"
+                },
+                "archetype_node_id": "openEHR-EHR-SECTION.diagnoses_rcp.v1",
+                "items": [
+                    {
+                        "@class": "EVALUATION",
+                        "name": {
+                            "@class": "DV_TEXT",
+                            "value": "Problem/Diagnosis"
+                        },
+                        "archetype_details": {
+                            "@class": "ARCHETYPED",
+                            "archetype_id": {
+                                "@class": "ARCHETYPE_ID",
+                                "value": "openEHR-EHR-EVALUATION.problem_diagnosis.v1"
+                            },
+                            "rm_version": "1.0.1"
+                        },
+                        "archetype_node_id": "openEHR-EHR-EVALUATION.problem_diagnosis.v1",
+                        "language": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "ISO_639-1"
+                            },
+                            "code_string": "en"
+                        },
+                        "encoding": {
+                            "@class": "CODE_PHRASE",
+                            "terminology_id": {
+                                "@class": "TERMINOLOGY_ID",
+                                "value": "IANA_character-sets"
+                            },
+                            "code_string": "UTF-8"
+                        },
+                        "subject": {
+                            "@class": "PARTY_SELF"
+                        },
+                        "data": {
+                            "@class": "ITEM_TREE",
+                            "name": {
+                                "@class": "DV_TEXT",
+                                "value": "structure"
+                            },
+                            "archetype_node_id": "at0001",
+                            "items": [
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Diagnosis"
+                                    },
+                                    "archetype_node_id": "at0002",
+                                    "value": {
+                                        "@class": "DV_CODED_TEXT",
+                                        "value": "asthma",
+                                        "defining_code": {
+                                            "@class": "CODE_PHRASE",
+                                            "terminology_id": {
+                                                "@class": "TERMINOLOGY_ID",
+                                                "value": "SNOMED-CT"
+                                            },
+                                            "code_string": "301485011"
+                                        }
+                                    }
+                                },
+                                {
+                                    "@class": "ELEMENT",
+                                    "name": {
+                                        "@class": "DV_TEXT",
+                                        "value": "Date of Onset"
+                                    },
+                                    "archetype_node_id": "at0003",
+                                    "value": {
+                                        "@class": "DV_DATE_TIME",
+                                        "value": "2015-02-17T13:30:37.553+01:00"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "CPR_decision": {
+                "@class": "DV_CODED_TEXT",
+                "value": "For attempted cardio-pulmonary resuscitation",
+                "defining_code": {
+                    "@class": "CODE_PHRASE",
+                    "terminology_id": {
+                        "@class": "TERMINOLOGY_ID",
+                        "value": "local"
+                    },
+                    "code_string": "at0004"
+                }
+            }
+        }
+    ]
 }
 ````
 
@@ -410,7 +1687,7 @@ All openEHR data is persisted as a COMPOSITION (document) class. openEHR data ca
 
 Once the data is assembled in the correct format, the actual service call is very simple requiring only the setting of simple parameters and headers.
 
-[Example Ehrscape Flat JSON Composition](/technical/instances/asthma/Asthma Diary FLAT_4.json)  
+[Example Ehrscape Flat JSON Composition](/technical/instances/handover/Clinical handover FLAT_1.json)  
 
 #####Call: Creates a new openEhr composition and returns the new CompositionId
 ````
@@ -418,26 +1695,45 @@ POST /rest/v1/composition?ehrId=d848f3b3-25a2-4eff-bd94-acfb425cf1d8&templateId=
 
 Headers:
  Ehr-Session: {{sessionId}} //The value of the sessionId
-
  {
-  "ctx/composer_name": "Steve Walford",
-  "ctx/health_care_facility|id": "999999-345",
-  "ctx/health_care_facility|name": "Northumbria Community NHS",
-  "ctx/id_namespace": "NHS-UK",
-  "ctx/id_scheme": "2.16.840.1.113883.2.1.4.3",
-  "ctx/language": "en",
-  "ctx/territory": "GB",
-  "ctx/time": "2014-09-25T09:11:02.518+02:00",
-  "asthma_diary_entry/history:0/story_history/comment": "Back to normal",
-  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/test_result_name|code": "at0071",
-  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/best_predicted_result|magnitude": 630,
-  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/best_predicted_result|unit": "l/min",
-  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_result|magnitude": 630,
-  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_result|unit": "l/min",
-  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio|numerator": 100,
-  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio|denominator": 100.00,
-  "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pefr_score": "Green"
-}
+   "ctx/composer_name": "Dr Joyce Smith",
+   "ctx/health_care_facility|id": "999999-345",
+   "ctx/health_care_facility|name": "Northumbria Community NHS",
+   "ctx/id_namespace": "NHS-UK",
+   "ctx/id_scheme": "2.16.840.1.113883.2.1.4.3",
+   "ctx/language": "en",
+   "ctx/territory": "GB",
+   "ctx/time": "2015-02-23T00:11:02.518+02:00",
+   "clinical_handover_summary/admission_details/inpatient_admission:0/date_of_admission": "2015-02-17T12:30:37.553Z",
+   "clinical_handover_summary/clinical_summary:0/clinical_synopsis:0/clinical_summary": "Condition remains brittle",
+   "clinical_handover_summary/history:0/reason_for_encounter:0/reason_for_admission": "Wheeze, chest tightness",
+   "clinical_handover_summary/current_medication/medication_statement:0/medication_item/medication_name|code": "320151000",
+   "clinical_handover_summary/current_medication/medication_statement:0/medication_item/medication_name|terminology": "SNOMED-CT",
+   "clinical_handover_summary/current_medication/medication_statement:0/medication_item/medication_name|value": "Salbutamol 100micrograms/dose breath actuated inhaler CFC free",
+   "clinical_handover_summary/current_medication/medication_statement:0/medication_item/dose_amount_description": "2 puffs",
+   "clinical_handover_summary/current_medication/medication_statement:0/medication_item/dose_timing_description": "as required for wheeze",
+   "clinical_handover_summary/current_medication/medication_statement:1/medication_item/medication_name|code": "320000009",
+   "clinical_handover_summary/current_medication/medication_statement:1/medication_item/medication_name|terminology": "SNOMED-CT",
+   "clinical_handover_summary/current_medication/medication_statement:1/medication_item/medication_name|value": "Simvastatin 40mg tablet",
+   "clinical_handover_summary/current_medication/medication_statement:1/medication_item/dose_amount_description": "40mg",
+   "clinical_handover_summary/current_medication/medication_statement:1/medication_item/dose_timing_description": "at night",
+   "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/causative_agent|code": "91936005",
+   "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/causative_agent|terminology":"SNOMED-CT",
+	 "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/causative_agent|value": "allergy to penicillin",
+   "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/reaction_details/date_recorded": "2012-12-17T12:30:37.553Z",
+   "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|code": "301485011",
+   "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|terminology": "SNOMED-CT",
+   "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|value": "asthma",   
+   "clinical_handover_summary/diagnoses/problem_diagnosis:0/date_of_onset": "2015-02-17T12:30:37.553Z",   
+ 	 "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:0/problem": "Hay fever",
+   "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:0/date_of_onset": "1993-01-17T12:30:37.553Z",
+ 	 "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|code": "299757012",
+ 	 "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|terminology": "SNOMED-CT",
+ 	 "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|value": "angina pectoris",
+   "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/date_of_onset": "2000-07-17T12:30:37.553Z", 
+ 	 "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/cpr_decision|code": "at0004",
+   "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/date_of_cpr_decision": "2015-02-17T12:30:37.553Z"
+ }
 ````
 #####Return:
 ````json
@@ -556,6 +1852,8 @@ Headers:
 ###4. Access the Indizen SNOMED CT Terminology browser service
 
 This API call to the [Indizen](www.indizen.com/index.php/en/) Terminology serviceretreives SNOMED CT terms matching ``asthma`` in XML format.
+
+The baseURL for Indizen ITSNode is http://www.itserver.es:9080/
 
 #####Call: Search the Indizen terminology service database for terms matching asthma
 ````

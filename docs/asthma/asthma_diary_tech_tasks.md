@@ -471,6 +471,8 @@ Headers:
 
 This API call to the [Indizen](www.indizen.com/index.php/en/) Terminology serviceretreives SNOMED CT terms matching ``asthma`` in XML format.
 
+The baseURL for Indizen ITSNode is http://www.itserver.es:9080/
+
 #####Call: Search the Indizen terminology service database for terms matching asthma
 ````
 GET /ITSNode/rest/snomed/descriptions?matchvalue=asthma&referencelanguage=en&fuzzy=false&numberOfElements=110&filtercomponent=all&spellingCorrection=true
