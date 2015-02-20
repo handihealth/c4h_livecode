@@ -5,7 +5,7 @@ The full openEHR specification is complex and beyond the scope of thissimple ove
 
 ##Ehrscape domains and Marand EhrExplorer
 
-   Ehrscape is set up as a set of 'domains', each of which is populated with its own dummy patient data and openEHR templates.
+   The [Marand Ehrscape](https://dev.ehrscape.com/) openEHR server is set up as a set of 'domains', each of which is populated with its own dummy patient data and openEHR clinical models.
 
    Each Ehrscape domain has its own login and password.
 
@@ -21,6 +21,9 @@ The full openEHR specification is complex and beyond the scope of thissimple ove
        password: ch4_train99
 
        Basic Authentication: Basic YzRoX3RyYWluOmM0aF90cmFpbjk5
+			 
+			 The baseURL for all Ehrscape API calls is https://rest.ehrscape.com
+			 
 
 ### Marand EhrExplorer
 
@@ -50,14 +53,10 @@ The [Postman add-on](http://getpostman.com) is vey useful for testing API calls 
 [Postman collection and environment files](/technical/postman) are available for the C4H training environment.
 
 
-#### Some basic openEHR/Ehrscape concepts
+##openEHR Archetypes and Templates - Clinical Information components
+he HANDI-HOPD Ehrscape API consumes, retrieves and queries patient healthcare data using a standardised specification and querying format defined by the openEHR Foundation. openEHR is complex and can be difficult for novices to understand (even those with a solid technical background) but the Ehrscape API considerably simplifies the interface with openEHR systems.
 
-The HANDI-HOPD Ehrscape API consumes, retrieves and queries patient healthcare data using a standardised specification and querying format defined by the openEHR Foundation. openEHR is complex and can be difficult for novices to understand (even those with a solid technical background) but the Ehrscape API considerably simplifies the interface with openEHR systems.
-
-#####Clinical Information components
-   [openEHR](http://openehr.org) provides a way for clinicians to define and share open-source, vendor-neutral clinical information components ('archetypes' and 'templates') which can be consumed, persisted and queried by different technology stacks, as long as they adhere to the openEHR specifications. Examples of archetypes used in this project are `'Procedure', 'Symptom', and 'Imaging result'`. These are managed by the openEHR Foundation using the [Clinical Knowledge Manager](http://openehr.org/ckm) tool and mirrored to [Github](https://github.com/openEHR/CKM-mirror), with a CC-BY-SA licence.
-
-
+[openEHR](http://openehr.org) provides a way for clinicians to define and share open-source, vendor-neutral clinical information components ('archetypes' and 'templates') which can be consumed, persisted and queried by different technology stacks, as long as they adhere to the openEHR specifications. Examples of archetypes used in this project are `'Procedure', 'Symptom', and 'Imaging result'`. These are managed by the openEHR Foundation using the [Clinical Knowledge Manager](http://openehr.org/ckm) tool and mirrored to [Github](https://github.com/openEHR/CKM-mirror), with a CC-BY-SA licence.
 
 ##Overview of openEHR Reference model
 The openEHR Reference model defines a relatively small set of information model constructs which openEHR back-ends must support. This includes a number of generic classes and datatypes.

@@ -52,6 +52,7 @@
 			"description": "",
 			"order": [
 				"5772d1f3-0a74-5c7e-00a8-f1721a60e1b2",
+				"3f5f649a-679b-0247-8103-41ea720ace6e",
 				"a3783d3f-db73-1ca6-2216-0c53b9f424e3",
 				"90728508-c84e-aca5-655e-aac15664a780",
 				"2ed1b778-d985-818c-26b2-2b91c3bb1300",
@@ -90,7 +91,8 @@
 			"name": "session",
 			"description": "",
 			"order": [
-				"487c149d-6eb3-9c92-f02f-36769faed21d"
+				"487c149d-6eb3-9c92-f02f-36769faed21d",
+				"35aa9379-82c1-1d80-d0f9-e91bc5173a03"
 			],
 			"collection_name": "handi_hopd",
 			"collection_id": "3eb3a59d-5cf8-3025-9af1-99bdd6d03fad"
@@ -172,6 +174,28 @@
 			"synced": false
 		},
 		{
+			"id": "35aa9379-82c1-1d80-d0f9-e91bc5173a03",
+			"headers": "Ehr-session: \n",
+			"url": "https://rest.ehrscape.com/rest/v1/sessio",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Delete Session",
+			"description": "Deletes an open Session.",
+			"descriptionFormat": "html",
+			"time": 1424265705360,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"collectionId": "3eb3a59d-5cf8-3025-9af1-99bdd6d03fad",
+			"synced": false,
+			"rawModeData": ""
+		},
+		{
 			"id": "3aa389c7-75c0-042a-5abf-5c88e0d55d81",
 			"headers": "Authorization: {{Authorization}}\n",
 			"url": "https://rest.ehrscape.com/rest/v1/query?aql=select%20%20%20%20%20e%2Fehr_id%2Fvalue%20as%20ehr_id_value%2C%20%20%20%20%20c%2Fcontext%2Fstart_time%2Fvalue%20as%20start_time%2C%20%20%20%20%20c%2Fname%2Fvalue%20as%20name%2C%20%20%20%20%20t%2Fdata%5Bat0002%5D%2Fevents%5Bat0003%5D%2Fdata%5Bat0001%5D%2Fitems%5Bat0004%5D%2Fvalue%2Fmagnitude%20as%20Temperature_magnitude%2C%20%20%20%20%20bp%2Fdata%5Bat0001%5D%2Fevents%5Bat0006%5D%2Fdata%5Bat0003%5D%2Fitems%5Bat0004%5D%2Fvalue%2Fmagnitude%20as%20Systolic_magnitude%2C%20%20%20%20%20bp%2Fdata%5Bat0001%5D%2Fevents%5Bat0006%5D%2Fdata%5Bat0003%5D%2Fitems%5Bat0005%5D%2Fvalue%2Fmagnitude%20as%20Diastolic_magnitude%2C%20%20%20%20%20r%2Fdata%5Bat0001%5D%2Fevents%5Bat0002%5D%2Fdata%5Bat0003%5D%2Fitems%5Bat0004%5D%2Fvalue%2Fmagnitude%20as%20Respirations_Rate_magnitude%2C%20%20%20%20%20c_a%2Fdata%5Bat0002%5D%2Fevents%5Bat0003%5D%2Fdata%5Bat0001%5D%2Fitems%5Bat0004%5D%2Fvalue%2Fmagnitude%20as%20Heart_rate_and_rhythm_Rate_magnitude%20from%20EHR%20e%20contains%20COMPOSITION%20c%20contains%20(%20%20%20%20%20OBSERVATION%20t%5BopenEHR-EHR-OBSERVATION.body_temperature.v1%5D%20or%20%20%20%20%20OBSERVATION%20bp%5BopenEHR-EHR-OBSERVATION.blood_pressure.v1%5D%20or%20%20%20%20%20OBSERVATION%20r%5BopenEHR-EHR-OBSERVATION.respiration.v1%5D%20or%20%20%20%20%20OBSERVATION%20c_a%5BopenEHR-EHR-OBSERVATION.heart_rate-pulse.v1%5D)%20offset%200%20limit%20100",
@@ -187,6 +211,27 @@
 			"description": "",
 			"collectionId": "3eb3a59d-5cf8-3025-9af1-99bdd6d03fad",
 			"responses": [],
+			"synced": false
+		},
+		{
+			"id": "3f5f649a-679b-0247-8103-41ea720ace6e",
+			"headers": "Accept: text/plain, */*; q=0.01\nOrigin: https://dev.ehrscape.com\nAuthorization: {{Authorization}}\nContent-Type: text/plain\nReferer: https://dev.ehrscape.com/api-explorer.html\n",
+			"url": "https://rest.ehrscape.com/rest/v1/demographics/party/query/?uk.nhs.nhsnumber={{nhsNumber}}",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"name": "Query Demographics Party via NHSNumber",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1424211728986,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"collectionId": "3eb3a59d-5cf8-3025-9af1-99bdd6d03fad",
 			"synced": false
 		},
 		{
@@ -245,23 +290,24 @@
 		},
 		{
 			"id": "487c149d-6eb3-9c92-f02f-36769faed21d",
-			"headers": "login: c4h_dental\npassword: babyteeth23\n",
+			"headers": "username: {{Username}}\npassword: {{Password}}\n",
 			"url": "https://rest.ehrscape.com/rest/v1/session",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "POST",
 			"data": [],
 			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1424265300876,
 			"name": "Session",
 			"description": "Commits a composition in JSON structured format.",
-			"descriptionFormat": "html",
-			"time": 1417010618723,
-			"version": 2,
-			"responses": [],
-			"tests": "",
 			"collectionId": "3eb3a59d-5cf8-3025-9af1-99bdd6d03fad",
+			"responses": [],
 			"synced": false,
-			"rawModeData": "{\n  \"ctx/composer_name\": \"Rebecca Wassall\",\n  \"ctx/health_care_facility|id\": \"999999-345\",\n  \"ctx/health_care_facility|name\": \"Northumbria Community NHS\",\n  \"ctx/id_namespace\": \"NHS-UK\",\n  \"ctx/id_scheme\": \"2.16.840.1.113883.2.1.4.3\",\n  \"ctx/language\": \"en\",\n  \"ctx/territory\": \"GB\",\n  \"ctx/time\": \"2014-09-23T00:11:02.518+02:00\",\n  \"community_dental_final_assessment_letter\": {\n    \"assessment_scales\": [\n      {\n        \"dental_rag_score\": [\n          {\n            \"caries_tooth_decay\": [\n              {\n                \"caries_risk\": [\n                  {\n                    \"|code\": \"at0024\",\n                    \"|ordinal\": 2,\n                    \"|value\": \"Red\"\n                  }\n                ],\n                \"clinical_factors\": [\n                  {\n                    \"|code\": \"at0025\",\n                    \"|terminology\": \"local\",\n                    \"|value\": \"Teeth with carious lesions\"\n                  }\n                ],\n                \"patient_factors\": [\n                  {\n                    \"|code\": \"at0029\",\n                    \"|terminology\": \"local\",\n                    \"|value\": \"Unsatisfactory Plaque control\"\n                  },\n                  {\n                    \"|code\": \"at0030\",\n                    \"|terminology\": \"local\",\n                    \"|value\": \"Sibling experience\"\n                  }\n                ]\n              }\n            ],\n            \"time\": [\n              \"2014-09-23T00:11:02.518+02:00\"\n            ]\n          }\n        ]\n      }\n    ],\n    \"clinical_summary\": [\n      {\n        \"clinical_synopsis\": [\n          {\n            \"synopsis\": [\n              \"Significant dental issues.\"\n            ]\n          }\n        ]\n      }\n    ],\n    \"context\": [\n      {\n        \"setting\": [\n          {\n            \"|code\": \"238\",\n            \"|terminology\": \"openehr\",\n            \"|value\": \"other care\"\n          }\n        ],\n        \"start_time\": [\n          \"2014-09-23T00:11:02.518+02:00\"\n        ]\n      }\n    ],\n    \"examination_findings\": [\n      {\n        \"physical_examination_findings\": [\n          {\n            \"oral_examination\": [\n              {\n                \"dental_swelling\": [\n                  {\n                    \"|code\": \"at0006\",\n                    \"|terminology\": \"local\",\n                    \"|value\": \"Dental swelling absent\"\n                  }\n                ],\n                \"plaque_control\": [\n                  {\n                    \"|code\": \"at0003\",\n                    \"|terminology\": \"local\",\n                    \"|value\": \"Poor plaque control\"\n                  }\n                ],\n                \"teeth_with_decay\": [\n                  \"3\"\n                ]\n              }\n            ],\n            \"time\": [\n              \"2014-09-23T00:11:02.518+02:00\"\n            ]\n          }\n        ]\n      }\n    ],\n    \"history\": [\n      {\n        \"story_history\": [\n          {\n            \"symptom\": [\n              {\n                \"symptom_name\": [\n                  {\n                    \"|code\": \"102616008\",\n                    \"|terminology\": \"SNOMED-CT\",\n                    \"|value\": \"Painful mouth\"\n                  }\n                ]\n              }\n            ],\n            \"time\": [\n              \"2014-09-23T00:11:02.518+02:00\"\n            ]\n          }\n        ]\n      }\n    ],\n    \"investigations_and_results\": [\n      {\n        \"imaging_examination_result\": [\n          {\n            \"examination_result_name\": [\n              {\n                \"|code\": \"22891007\",\n                \"|terminology\": \"SNOMED-CT\",\n                \"|value\": \"Radiography of teeth \"\n              }\n            ],\n            \"overall_result_status\": [\n              {\n                \"|code\": \"at0011\",\n                \"|terminology\": \"local\",\n                \"|value\": \"Final\"\n              }\n            ],\n            \"radiological_diagnosis\": [\n              {\n                \"|code\": \"23875004\",\n                \"|terminology\": \"SNOMED-CT\",\n                \"|value\": \"No pathologic diagnosis\"\n              }\n            ],\n            \"result_group\": [\n              {\n                \"decayed_teeth\": [\n                  {\n                    \"decayed_teeth\": [\n                      \"4\"\n                    ]\n                  }\n                ],\n                \"teeth_with_associated_abscesses\": [\n                  {\n                    \"teeth_with_associated_abscesses\": [\n                      \"3\"\n                    ]\n                  }\n                ]\n              }\n            ],\n            \"time\": [\n              \"2014-09-23T00:11:02.518+02:00\"\n            ]\n          }\n        ]\n      }\n    ],\n    \"outpatient_details\": [\n      {\n        \"outpatient_administration\": [\n          {\n            \"contact_type\": [\n              {\n                \"|code\": \"at0008\",\n                \"|terminology\": \"local\",\n                \"|value\": \"Scheduled follow-up contact\"\n              }\n            ]\n          }\n        ]\n      }\n    ],\n    \"patient_demographics\": [\n      {\n        \"relevant_contacts\": [\n          {\n            \"formal_carer\": [\n              {\n                \"primary_school_contact\": [\n                  {\n                    \"person_name\": [\n                      {\n                        \"contact_name\": [\n                          \"Nurse Baw\"\n                        ]\n                      }\n                    ],\n                    \"primary_school\": [\n                      \"St Mungo Primary school\"\n                    ],\n                    \"telecom_details_uk\": [\n                      {\n                        \"contact_telecoms\": [\n                          \"Mobile 0775 343 46547\"\n                        ]\n                      }\n                    ]\n                  }\n                ]\n              }\n            ]\n          }\n        ]\n      }\n    ],\n    \"plan_and_requested_actions\": [\n      {\n        \"follow_up_request\": [\n          {\n            \"_uid\": [\n              \"f36d8e67-6609-40be-ac0f-35f0fe900d1e\"\n            ],\n            \"narrative\": [\n              \"Dental examination\"\n            ],\n            \"request\": [\n              {\n                \"description_of_follow_up\": [\n                  \"Review in 4 weeks.\"\n                ],\n                \"follow_up_service_requested\": [\n                  {\n                    \"|code\": \"141954009\",\n                    \"|terminology\": \"SNOMED-CT\",\n                    \"|value\": \"Dental examination\"\n                  }\n                ],\n                \"timing\": [\n                  {\n                    \"|formalism\": \"dummy\",\n                    \"|value\": \"dummy\"\n                  }\n                ]\n              }\n            ]\n          }\n        ],\n        \"plan_and_requested_actions_synopsis\": [\n          {\n            \"synopsis\": [\n              \"Preventitive dental care, Dental treatment under GA\"\n            ]\n          }\n        ]\n      }\n    ]\n  }\n}\n"
+			"rawModeData": ""
 		},
 		{
 			"id": "51c5b7c8-3194-0852-f2e5-8e16340f0a4d",

@@ -1,26 +1,28 @@
-##C4H Asthma Diary Ehrscape Technical tasks
-This document describes the series of [Ehrscape API](https://dev.ehrscape.com/api-explorer.html) calls required for the Asthma Diary app and assumes a base level of understanding of that API and the use of openEHR - further details can be found at [Overview of openEHR and Ehrscape](/docs/training/openehr_intro.md).
+##C4H Handover Summary Ehrscape Technical tasks
+This document describes the series of [Ehrscape API](https://dev.ehrscape.com/api-explorer.html) calls required for the Handover Summary app and assumes a base level of understanding of that API and the use of openEHR - further details can be found at [Overview of openEHR and Ehrscape](/docs/training/openehr_intro.md).
 
 The steps covered are...  
 
 * Open the Ehrscape Session
-* Retrieve Patient's subjectId from the demographics service, based on NHS Number
+* Retrieve Patient's demographics from a FHIR demographics service, based on NHS Number
+* Retrieve Patient's subjectId from the local demographics service based on NHS Number
 * Retrieve Patient's ehrId from Ehrscape, based on their subjectId
 
-* Retrieve list of Patient's recent Asthma Diary Entry compositions
-* Retrieve a single Asthma Diary Encounter composition
-* Retrieve detailed list of recent Asthma Diary Entries for charting purposes
-* Persist a new Asthma Diary Encounter Composition
+* Retrieve list of Patient's recent Handover Summary compositions
+* Retrieve a single Handover Summary composition
+* Retrieve detailed list of recent Handover Summary compositions for charting purposes
+* Persist a new Handover Summary Composition
 * Close the Ehrscape Session
 
 * Other API services
- * Access the ALISS 'Local community resources' servic
+ * Access the ALISS 'Local community resources' service
  * Access the NHS Choices Patient advice service - HTML
  * Access the NHS Choices Patient advice service - XML
  * Access the Indizen SNOMED CT Terminology browser service  
-
+ 
 The baseURL for all Ehrscape API calls is https://rest.ehrscape.com
  
+
 ###A. Open the Ehrscape session
 
 The first step in working with Ehrscape is to open a Session and retrieve the ``sessionId`` token. This allows subsequent API calls to be made without needing to login on each occasion.  
@@ -40,7 +42,92 @@ i.e. the call below should be to https://rest.ehrscape.com/rest/v1/session?usern
 "sessionId": "fc234d24-7b59-49f5-a724-8d37072e832b"
 }
 ````
-###B. Retrieve Patient's subjectId from the demographics service based on NHS Number
+###B. Retrieve Patient's demographics from a FHIR demographics service based on NHS Number
+
+This call retreives basic patient demographics from the [Blackpear FHIRBall](https://github.com/BlackPearSw/fhirball) [HL7 FHIR](http://www.hl7.org/implement/standards/fhir/) service.
+
+The root `id` element i.e. **"63436" in the JSON response example below** is the `subjectId`.
+
+The baseURL for the HANDI-HOPD instance of the FHIRBall server is http://fhir-handihopd.rhcloud.com
+
+i.e. the call below should be to http://fhir-handihopd.rhcloud.com/fhir/patient?identifier=7430345
+
+#####Call: Queries the demographics store for matching parties, with the query parameters specified in the URL.
+ ````
+GET /fhir/patient?identifier=7430555
+Headers:
+ Ehr-Session: {{sessionId}} //The value of the sessionId
+````
+#####Returns:
+````json
+{
+    "resourceType": "Bundle",
+    "title": "Search result",
+    "link": [
+        {
+            "rel": "self",
+            "href": "http://fhir-handihopd.rhcloud.com/fhir/patient?identifier=7430345&_count=10&page=1"
+        }
+    ],
+    "entry": [
+        {
+            "id": "5478959d9c903b00000a904f",
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "Patient/5478959d9c903b00000a904f"
+                }
+            ],
+            "category": [],
+            "content": {
+                "address": [
+                    {
+                        "zip": "LS23 4RT",
+                        "state": "West Yorkshire",
+                        "city": "Garrowhill",
+                        "line": [
+                            "60 Florida Gardens"
+                        ],
+                        "text": "60 Florida Gardens, Garrowhill, West Yorkshire, LS23 4RT"
+                    }
+                ],
+                "birthDate": "2008-05-12T00:00:00.000Z",
+                "gender": {
+                    "coding": [
+                        {
+                            "code": "F",
+                            "system": "http://hl7.org/fhir/v3/vs/AdministrativeGender"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "prefix": [
+                            "Miss"
+                        ],
+                        "given": [
+                            "Kim"
+                        ],
+                        "family": [
+                            "Dalton"
+                        ],
+                        "text": "Miss Kim Dalton"
+                    }
+                ],
+                "identifier": [
+                    {
+                        "value": "7430345",
+                        "system": "NHS",
+                        "label": "NHS"
+                    }
+                ],
+                "resourceType": "Patient"
+            }
+        }
+    ]
+}
+````
+###C. Retrieve Patient's subjectId from the demographics service based on NHS Number
 
 An external identifier associated with the patient, in this case their NHS Number, is used to retrieve the patient's internal demographic service identifier their `subjectId`.
 
@@ -85,9 +172,8 @@ Headers:
         }
     ]
 }
-````
 
-###C. Retrieve Patient's ehrId from Ehrscape based on their subjectId
+###D. Retrieve Patient's ehrId from Ehrscape based on their subjectId
 
 We now need to retrieve the patient's internal `ehrID` asociated with their subjectId. The ehrID is a unique string which, for security reasons, cannot be assoicated with the patient, if for instance their openEHR records were leaked.
 
@@ -105,7 +191,7 @@ Headers:
 ````
 
 
-###D. Retrieve list of Patient's recent Asthma Diary Entry compositions
+###E. Retrieve list of Patient's recent Handover Summary compositions
 
 Now that we have the patient's ehrId we can use it to locate their existing records.
 We use an Archetype Query Language (AQL) call to retrieve a list of the identifiers and dates of existing Asthma Diary encounter ``composition`` records. Compositions are document-level records which act as the container for all openEHR patient data.
@@ -159,7 +245,7 @@ Headers:
     ]
 ````
 
-###E. Retrieve a single Asthma Diary Encounter composition
+###F. Retrieve a single Handover Summary composition
 
 We will use the results of the previous query to retrieve one of the compositions via its ''compositionId''.
 
@@ -195,9 +281,9 @@ Headers:
 }
 ````
 
-###F. Retrieve detailed list of recent Asthma Diary Encounters for charting purposes
+###G. Retrieve detailed list of recent Handover Summary compositions for charting purposes
 
-We now use a more complex Archetype Query Language (AQL) call to retrieve a the key datapoints of the most recent Asthma Diary Encounter``composition``.
+We now use a more complex Archetype Query Language (AQL) call to retrieve a the key datapoints of the most recent Handover Summary``composition``.
 
 AQL allows for very flexible querying and output. The output chosen here is relatively flat, returning a set of simple name/pair values. This is simple to process but does have the disadvantage of causing some duplication of returned rows to accomodate multiple symptoms. More complex AQL structures can be returned but are more difficult to process.
 
@@ -318,7 +404,7 @@ Headers:
 }
 ````
 
-###G. Persist a new Asthma Diary Encounter Composition
+###H. Persist a new Handover Summary Composition
 
 All openEHR data is persisted as a COMPOSITION (document) class. openEHR data can be highly structured and potentially complex. To simplify the challenge of persisting openEHR data, examples of  'target composition' data instances have been provided in the Ehrscape ``FLAT JSON`` format.
 
@@ -360,7 +446,7 @@ Headers:
 }
 ````
 
-###H. Close the Ehrscape session
+###I. Close the Ehrscape session
 
 The last step in working with Ehrscape is to close the session.
 
@@ -375,7 +461,7 @@ The last step in working with Ehrscape is to close the session.
 }
 ````
 
-##I. Other Services
+##J. Other Services
 
 These are other non-Ehrscape API services.
 
