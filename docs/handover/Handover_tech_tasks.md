@@ -19,9 +19,9 @@ The steps covered are...
  * Access the NHS Choices Patient advice service - HTML
  * Access the NHS Choices Patient advice service - XML
  * Access the Indizen SNOMED CT Terminology browser service  
- 
+
 The baseURL for all Ehrscape API calls is https://rest.ehrscape.com
- 
+
 
 ###A. Open the Ehrscape session
 
@@ -194,7 +194,7 @@ Headers:
 ###E. Retrieve list of Patient's recent Handover Summary compositions
 
 Now that we have the patient's ehrId we can use it to locate their existing records.
-We use an Archetype Query Language (AQL) call to retrieve a list of the identifiers and dates of existing Asthma Diary encounter ``composition`` records. Compositions are document-level records which act as the container for all openEHR patient data.
+We use an Archetype Query Language (AQL) call to retrieve a list of the identifiers and dates of existing Clinical Handover Summary encounter ``composition`` records. Compositions are document-level records which act as the container for all openEHR patient data.
 
 #####AQL statement
 
@@ -204,7 +204,7 @@ select
     a/context/start_time/value as context_start_time
 from EHR e[ehr_id/value='d848f3b3-25a2-4eff-bd94-acfb425cf1d8']
 contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1]
-where a/name/value='Asthma Diary Entry'
+where a/name/value='Clinical Handover Summary'
 order by a/context/start_time/value desc
 offset 0 limit 10
 `````
@@ -214,7 +214,7 @@ The `uid_value` element in the response is the unique identifier for the composi
 
 #####Call: Run AQL query and return a Resultset
 ````
-GET /rest/v1/query?aql=select a/uid/value as uid_value, a/context/start_time/value as context_start_time from EHR e[ehr_id/value='d848f3b3-25a2-4eff-bd94-acfb425cf1d8'] contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1] where a/name/value='Asthma Diary Entry' order by a/context/start_time/value desc offset 0 limit
+GET /rest/v1/query?aql=select a/uid/value as uid_value, a/context/start_time/value as context_start_time from EHR e[ehr_id/value='d848f3b3-25a2-4eff-bd94-acfb425cf1d8'] contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1] where a/name/value='Clinical Handover Summary' order by a/context/start_time/value desc offset 0 limit
 Headers:
  Ehr-Session: {{sessionId}} //The value of the sessionId
 ````
@@ -222,27 +222,27 @@ Headers:
 #####Return:
 ````json
 "resultSet": [
-        {
-            "context_start_time": "2014-09-23T09:11:02.518+02:00",
-            "uid_value": "6466886b-1a89-4362-b253-2edb8f45d968::c4h_train.ehrscape.com::1"
-        },
-        {
-            "context_start_time": "2014-09-22T09:11:02.518+02:00",
-            "uid_value": "67d28ff7-216c-4744-9737-1d0be5e300e1::c4h_train.ehrscape.com::1"
-        },
-        {
-            "context_start_time": "2014-09-21T21:21:02.518+02:00",
-            "uid_value": "5b908abd-329b-4f7a-8e27-86fe07b141ac::c4h_train.ehrscape.com::1"
-        },
-        {
-            "context_start_time": "2014-09-21T08:11:02.518+02:00",
-            "uid_value": "57a15efd-f540-4ec5-bbac-0f5e6a0d90fd::c4h_train.ehrscape.com::1"
-        },
-        {
-            "context_start_time": "2014-09-20T09:11:02.518+02:00",
-             "uid_value": "10ade55e-75d1-4278-bf3b-7ef20bcddee8::c4h_train.ehrscape.com::1"
-        }
-    ]
+  {
+      "context_start_time": "2014-09-23T09:11:02.518+02:00",
+      "uid_value": "6466886b-1a89-4362-b253-2edb8f45d968::c4h_train.ehrscape.com::1"
+  },
+  {
+      "context_start_time": "2014-09-22T09:11:02.518+02:00",
+      "uid_value": "67d28ff7-216c-4744-9737-1d0be5e300e1::c4h_train.ehrscape.com::1"
+  },
+  {
+      "context_start_time": "2014-09-21T21:21:02.518+02:00",
+      "uid_value": "5b908abd-329b-4f7a-8e27-86fe07b141ac::c4h_train.ehrscape.com::1"
+  },
+  {
+      "context_start_time": "2014-09-21T08:11:02.518+02:00",
+      "uid_value": "57a15efd-f540-4ec5-bbac-0f5e6a0d90fd::c4h_train.ehrscape.com::1"
+  },
+  {
+      "context_start_time": "2014-09-20T09:11:02.518+02:00",
+       "uid_value": "10ade55e-75d1-4278-bf3b-7ef20bcddee8::c4h_train.ehrscape.com::1"
+  }
+]
 ````
 
 ###F. Retrieve a single Handover Summary composition
@@ -258,26 +258,46 @@ Headers:
 ````
 #####Return:
 ````json
-"composition": {
-       "asthma_diary_entry/context/setting|238": true,
-       "asthma_diary_entry/context/setting|value": "other care",
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio": 0.92,
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/time": "2014-09-20T07:11:02.518Z",
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/test_result_name|code": "at0071",
-       "asthma_diary_entry/context/setting|code": "238",
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/best_predicted_result|unit": "l/min",
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/test_result_name|at0071": true,
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_result|magnitude": 580,
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/test_result_name|value": "Peak expiratory flow (PEF)",
-       "asthma_diary_entry/_uid": "10ade55e-75d1-4278-bf3b-7ef20bcddee8::c4h_train.ehrscape.com::1",
-       "asthma_diary_entry/context/start_time": "2014-09-20T07:11:02.518Z",
-       "asthma_diary_entry/context/setting|terminology": "openehr",
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pefr_score": "Green",
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/best_predicted_result|magnitude": 630,
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_result|unit": "l/min",
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio|denominator": 100,
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/test_result_name|terminology": "local",
-       "asthma_diary_entry/examination_findings:0/pulmonary_function_testing:0/result_details/pulmonary_flow_rate_result/actual_predicted_ratio|numerator": 92
+{
+  "composition": {
+ "clinical_handover_summary/context/setting|238": true,
+ "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/causative_agent|91936005": true,
+ "clinical_handover_summary/current_medication/medication_statement:0/medication_item/dose_amount_description": "40mg",
+ "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/cpr_decision|code": "at0004",
+ "clinical_handover_summary/context/start_time": "2015-02-22T22:11:02.518Z",
+ "clinical_handover_summary/clinical_summary:0/clinical_synopsis:0/clinical_summary": "Condition remains brittle",
+ "clinical_handover_summary/history:0/reason_for_encounter:0/reason_for_admission": "Wheeze, chest tightness",
+ "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|code": "301485011",
+ "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:0/problem": "Hay fever",
+ "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/cpr_decision|terminology": "local",
+ "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/causative_agent|value": "allergy to penicillin",
+ "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|code": "299757012",
+ "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|terminology": "SNOMED-CT",
+ "clinical_handover_summary/current_medication/medication_statement:0/medication_item/medication_name|terminology": "SNOMED-CT",
+ "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/causative_agent|terminology": "SNOMED-CT",
+ "clinical_handover_summary/context/setting|code": "238",
+ "clinical_handover_summary/admission_details/inpatient_admission:0/date_of_admission": "2015-02-17T12:30:37.553Z",
+ "clinical_handover_summary/current_medication/medication_statement:0/medication_item/medication_name|320000009": true,
+ "clinical_handover_summary/diagnoses/problem_diagnosis:0/date_of_onset": "2015-02-17T12:30:37.553Z",
+ "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/reaction_details/date_recorded": "2012-12-17T12:30:37.553Z",
+ "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|299757012": true,
+ "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|terminology": "SNOMED-CT",
+ "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|301485011": true,
+ "clinical_handover_summary/context/setting|value": "other care",
+ "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/causative_agent|code": "91936005",
+ "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/date_of_onset": "2000-07-17T12:30:37.553Z",
+ "clinical_handover_summary/context/setting|terminology": "openehr",
+ "clinical_handover_summary/current_medication/medication_statement:0/medication_item/dose_timing_description": "at night",
+ "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/cpr_decision|at0004": true,
+ "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/date_of_cpr_decision": "2015-02-17T12:30:37.553Z",
+ "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|value": "asthma",
+ "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/cpr_decision|value": "For attempted cardio-pulmonary resuscitation",
+ "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:0/date_of_onset": "1993-01-17T12:30:37.553Z",
+ "clinical_handover_summary/_uid": "ee9ded3d-0b05-49ee-96c7-713631c16cee::c4h_train.ehrscape.com::1",
+ "clinical_handover_summary/current_medication/medication_statement:0/medication_item/medication_name|code": "320000009",
+ "clinical_handover_summary/current_medication/medication_statement:0/medication_item/medication_name|value": "Simvastatin 40mg tablet",
+ "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|value": "angina pectoris"
+
 }
 ````
 
@@ -1723,14 +1743,14 @@ Headers:
    "clinical_handover_summary/allergies_and_adverse_reactions/adverse_reaction:0/reaction_details/date_recorded": "2012-12-17T12:30:37.553Z",
    "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|code": "301485011",
    "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|terminology": "SNOMED-CT",
-   "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|value": "asthma",   
-   "clinical_handover_summary/diagnoses/problem_diagnosis:0/date_of_onset": "2015-02-17T12:30:37.553Z",   
+   "clinical_handover_summary/diagnoses/problem_diagnosis:0/diagnosis|value": "asthma",
+   "clinical_handover_summary/diagnoses/problem_diagnosis:0/date_of_onset": "2015-02-17T12:30:37.553Z",
  	 "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:0/problem": "Hay fever",
    "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:0/date_of_onset": "1993-01-17T12:30:37.553Z",
  	 "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|code": "299757012",
  	 "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|terminology": "SNOMED-CT",
  	 "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/problem|value": "angina pectoris",
-   "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/date_of_onset": "2000-07-17T12:30:37.553Z", 
+   "clinical_handover_summary/problems_and_issues:0/problem_diagnosis:1/date_of_onset": "2000-07-17T12:30:37.553Z",
  	 "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/cpr_decision|code": "at0004",
    "clinical_handover_summary/plan_and_requested_actions:0/cpr_decision:0/date_of_cpr_decision": "2015-02-17T12:30:37.553Z"
  }
