@@ -203,7 +203,7 @@ select
     a/uid/value as uid_value,
     a/context/start_time/value as context_start_time
 from EHR e[ehr_id/value='d848f3b3-25a2-4eff-bd94-acfb425cf1d8']
-contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1]
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.report.v1]
 where a/name/value='Clinical Handover Summary'
 order by a/context/start_time/value desc
 offset 0 limit 10
@@ -214,7 +214,7 @@ The `uid_value` element in the response is the unique identifier for the composi
 
 #####Call: Run AQL query and return a Resultset
 ````
-GET /rest/v1/query?aql=select a/uid/value as uid_value, a/context/start_time/value as context_start_time from EHR e[ehr_id/value='d848f3b3-25a2-4eff-bd94-acfb425cf1d8'] contains COMPOSITION a[openEHR-EHR-COMPOSITION.encounter.v1] where a/name/value='Clinical Handover Summary' order by a/context/start_time/value desc offset 0 limit
+GET /rest/v1/query?aql=select a/uid/value as uid_value, a/context/start_time/value as context_start_time from EHR e[ehr_id/value='d848f3b3-25a2-4eff-bd94-acfb425cf1d8'] contains COMPOSITION a[openEHR-EHR-COMPOSITION.report.v1] where a/name/value='Clinical Handover Summary' order by a/context/start_time/value desc offset 0 limit
 Headers:
  Ehr-Session: {{sessionId}} //The value of the sessionId
 ````
